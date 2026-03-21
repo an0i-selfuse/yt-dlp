@@ -78,7 +78,7 @@ class BilibiliBaseIE(InfoExtractor):
         if flac_audio:
             audios.append(flac_audio)
         formats = [{
-            'url': traverse_obj(audio, 'baseUrl', 'base_url', 'url'),
+            'url': traverse_obj(audio, ('backup_url', 0), 'baseUrl', 'base_url', 'url'),
             'ext': mimetype2ext(traverse_obj(audio, 'mimeType', 'mime_type')),
             'acodec': traverse_obj(audio, ('codecs', {str.lower})),
             'vcodec': 'none',
@@ -88,7 +88,7 @@ class BilibiliBaseIE(InfoExtractor):
         } for audio in audios]
 
         formats.extend({
-            'url': traverse_obj(video, 'baseUrl', 'base_url', 'url'),
+            'url': traverse_obj(video, ('backup_url', 0), 'baseUrl', 'base_url', 'url'),
             'ext': mimetype2ext(traverse_obj(video, 'mimeType', 'mime_type')),
             'fps': float_or_none(traverse_obj(video, 'frameRate', 'frame_rate')),
             'width': int_or_none(video.get('width')),
@@ -100,7 +100,7 @@ class BilibiliBaseIE(InfoExtractor):
             'filesize': int_or_none(video.get('size')),
             'quality': int_or_none(video.get('id')),
             'format_id': traverse_obj(
-                video, (('baseUrl', 'base_url'), {self._FORMAT_ID_RE.search}, 1),
+                video, ((('backup_url', 0), 'baseUrl', 'base_url'), {self._FORMAT_ID_RE.search}, 1),
                 ('id', {str_or_none}), get_all=False),
             'format': format_names.get(video.get('id')),
         } for video in traverse_obj(play_info, ('dash', 'video', ...)))
